@@ -465,7 +465,6 @@ def sendEmail():
 	with app.app_context():
 		random_time = randint(0,240)
 		print '======>>> time to send = '+str((int(120+random_time))/60)
-		time.sleep(random_time)
 		global email_count
 		global subject
 		global description
@@ -502,6 +501,7 @@ def sendEmail():
 					EmailList.delete(ob)
 				except Exception as e:
 					print "Error: "+e.message
+				time.sleep(10)
 		else:
 			# Shutdown your cron thread if the web process is stopped
 			sched.shutdown(wait=False)
@@ -512,6 +512,7 @@ def sendEmail():
 			subject=''
 			description=''
 			group_send=[]
+		# time.sleep(random_time)
 @app.route('/email', methods = ['GET', 'POST'])
 @app.route('/email/', methods = ['GET', 'POST'])
 @auth.login_required
@@ -536,7 +537,7 @@ def admin_email():
 		sending_name= request.form['name']
 		# return 'dd'
 		if reply_to=="":
-			reply_to = email
+			reply_to = sending_email
 		for group in groups:
 			print str(group)+"========="
 			group_send.append(int(group))
@@ -556,7 +557,7 @@ def admin_email():
 					except Exception as e:
 						print e.message
 		email_to_send = EmailList.query.filter_by(user_id=request.cookies.get('blog_id')).count()
-		sched.add_interval_job(sendEmail, seconds=120) #120 seconds
+		sched.add_interval_job(sendEmail, seconds=10) #120 seconds
 		sched.start()
 		flash("Your Email will be sent successfully.")
 		groups = Group.query.filter_by(user_id=request.cookies.get('blog_id')).all()

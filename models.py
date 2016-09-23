@@ -47,7 +47,7 @@ class UserMember(db.Model):
         return user
 class Email(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(255), unique=True)
+    email = db.Column(db.String(255))
     firstname  = db.Column(db.String(255), nullable=True)
     lastname  = db.Column(db.String(255), nullable=True)
     published_at = db.Column(db.TIMESTAMP,server_default=db.func.current_timestamp())
