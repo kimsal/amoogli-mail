@@ -512,7 +512,7 @@ def sendEmail():
 			subject=''
 			description=''
 			group_send=[]
-		# time.sleep(random_time)
+		time.sleep(random_time)
 @app.route('/email', methods = ['GET', 'POST'])
 @app.route('/email/', methods = ['GET', 'POST'])
 @auth.login_required
@@ -557,7 +557,7 @@ def admin_email():
 					except Exception as e:
 						print e.message
 		email_to_send = EmailList.query.filter_by(user_id=request.cookies.get('blog_id')).count()
-		sched.add_interval_job(sendEmail, seconds=10) #120 seconds
+		sched.add_interval_job(sendEmail, seconds=120) #120 seconds
 		sched.start()
 		flash("Your Email will be sent successfully.")
 		groups = Group.query.filter_by(user_id=request.cookies.get('blog_id')).all()
