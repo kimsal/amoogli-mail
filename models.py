@@ -16,16 +16,19 @@ class UserMember(db.Model):
     emails=db.relationship('Email', backref="user_member", lazy='dynamic')
     groups=db.relationship('Group', backref="user_member", lazy='dynamic')
     emaillists=db.relationship('EmailList', backref="user_member", lazy='dynamic')
+    emailsent=db.relationship('EmailSent', backref="user_member", lazy='dynamic')
+    status = db.Column(db.Integer)
     def verify_password(self, password):
         #return custom_app_context.encrypt(password) == self.password
         return custom_app_context.verify(password, self.password)
     def hash_password(self, password):
         self.password = custom_app_context.encrypt(password)
-    def __init__(self, name, email, password):
+    def __init__(self, name, email, password,status=0):
         self.name = name
         self.email = email
         self.password = password
         self.password2 = password
+        self.status = status
     def add(user):
         db.session.add(user)
         return db.session.commit()
@@ -163,9 +166,48 @@ class EmailList(db.Model):
     def delete(messagelist):
         db.session.delete(messagelist)
         return db.session.commit()
+
+class EmailSent(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    send_to = db.Column(db.String(150))
+    subject = db.Column(db.String(1000))
+    description = db.Column(db.Text)
+    reply_to = db.Column(db.String(255))
+    sending_email = db.Column(db.String(255))
+    sending_name    = db.Column(db.String(255))
+    published_at=db.Column(db.TIMESTAMP,server_default=db.func.current_timestamp())
+    user_id=db.Column(db.Integer,db.ForeignKey('user_member.id'),nullable=True)
+    def __str__(self):
+        return self.name
+    # def update(self):
+    #     return session_commit()    
+    def to_Json(self):
+        return dict(id=self.id,
+            send_to = self.send_to,
+            subject = self.subject,
+            description = self.description,
+            reply_top = self.reply_to,
+            sending_email=self.sending_email,
+            sending_name=self.sending_name,
+            user_id  = self.user_id
+            )
+    def __init__(self,send_to,subject,description,reply_to,sending_email,sending_name,user_id):
+        self.send_to= send_to,
+        self.subject = subject,
+        self.description = description,
+        self.reply_to = reply_to,
+        self.sending_email=sending_email,
+        self.sending_name=sending_name,
+        self.user_id = user_id
+    def add(messagelist):
+        db.session.add(messagelist)
+        return db.session.commit()
+    def delete(messagelist):
+        db.session.delete(messagelist)
+        return db.session.commit()
 if __name__ == '__main__':
     app.secret_key = SECRET_KEY
-    app.config['DEBUG'] = True
+    # app.config['DEBUG'] = True
     # app.config['SESSION_TYPE'] = 'filesystem'
     app.debug = True
     manager.run()

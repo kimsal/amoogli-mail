@@ -23,7 +23,7 @@ email=''
 pwd=''
 password=''
 send_name=''
-limit=30
+limit=1
 #### send mail ####
 app.config.update(
 	DEBUG=True,
@@ -59,7 +59,9 @@ def goLoginPage():
 def get_auth_token():
     token = g.user.generate_auth_token()
     return jsonify({ 'token': token.decode('ascii') })
-
+@app.route('/', methods=['POST', 'GET'])
+def index():
+	return redirect(url_for("admin_login"))
 @app.route('/login', methods=['POST', 'GET'])
 @app.route('/login/', methods=['POST', 'GET'])
 def admin_login():
@@ -191,6 +193,47 @@ def sendingList(id=0,action='none',pagination=1):
 	if((EmailList.query.filter_by(user_id=request.cookies.get('blog_id')).count())%limit != 0 ):
 		pagin=int(pagin+1)
 	return render_template('/admin/emailsending.html',current_pagin=int(pagination),pagin=int(pagin),email_to_send=email_to_send,emails=sendnigEmails)
+###########Email hostory###########
+@app.route('/email/history')
+@app.route('/email/history/')
+@app.route('/email/history/<id>/<action>', methods = ['GET', 'POST'])
+@app.route('/email/history/<id>/<action>/', methods = ['GET', 'POST'])
+@app.route('/email/history/<pagination>')
+@app.route('/email/history/<pagination>/')
+def emailsent(id=0,action='none',pagination=1):
+	email_to_send = EmailList.query.filter_by(user_id=request.cookies.get('blog_id')).count()
+	if action=='delete':
+		try:
+			if int(id)==0:
+				try:
+					arr_email=str(request.form['emails']).split(";")
+					print str(arr_email)
+					for e in arr_email:
+						print str(e)
+						obj=EmailSent.query.filter_by(id=int(e)).filter_by(user_id=request.cookies.get('blog_id')).first()
+						status = EmailSent.delete(obj)
+					return jsonify({'success':"Ok" })
+				except Exception as e:
+					return jsonify({'success':"Error:"+e.message })
+			else:
+				ob=EmailSent.query.filter_by(id=id).filter_by(user_id=request.cookies.get('blog_id')).first()
+				status = EmailSent.delete(ob)
+				if not status:
+					flash("Email deleted successfully")
+				else:
+					flash("Error in deleting email!")
+		except Exception as e:
+			print e.message
+	emails = EmailSent.query.filter_by(user_id=request.cookies.get('blog_id')).limit(limit).offset(int(int(int(pagination)-1)*limit))
+	pagin=math.ceil((EmailSent.query.filter_by(user_id=request.cookies.get('blog_id')).count())/limit)
+	if((EmailSent.query.filter_by(user_id=request.cookies.get('blog_id')).count())%limit != 0 ):
+		pagin=int(pagin+1)
+	# for i in emails:
+	# 	return str(i.id)+":"+str(emails.count())
+	# emails_sent= EmailSent.query.all()
+	return render_template('/admin/history.html',emails_sent=emails,current_pagin=int(pagination),pagin=int(pagin),email_to_send=email_to_send)
+
+########End email history #####
 @app.route('/email/group', methods = ['GET', 'POST'])
 @app.route('/email/group/', methods = ['GET', 'POST'])
 # @app.route('/admin/email/group/<slug>', methods = ['GET', 'POST'])
@@ -484,7 +527,7 @@ def sendEmail():
 					MAIL_PASSWORD = ob.sending_password
 					)
 				mail=Mail(app)
-				print ob.name
+				print 'Send to '+ob.name
 				try:
 					description = ob.description
 					subject = ob.subject
@@ -496,12 +539,16 @@ def sendEmail():
 					msg = Message(subject_send,sender=(ob.sending_name,ob.sending_email),recipients=[ob.email],reply_to=ob.reply_to)
 					message_string=str(description_send)
 					msg.html = message_string
-					mail.send(msg)	
+					# mail.send(msg)	
 					#remove email from email list after send
 					EmailList.delete(ob)
+
+					tmp = EmailSent(ob.email,ob.subject,ob.description,ob.reply_to,ob.sending_email,ob.sending_name,ob.user_id)
+					EmailSent.add(tmp)
+					
 				except Exception as e:
 					print "Error: "+e.message
-				time.sleep(10)
+				# time.sleep(5)
 		else:
 			# Shutdown your cron thread if the web process is stopped
 			sched.shutdown(wait=False)
@@ -512,7 +559,7 @@ def sendEmail():
 			subject=''
 			description=''
 			group_send=[]
-		time.sleep(random_time)
+		# time.sleep(random_time)
 @app.route('/email', methods = ['GET', 'POST'])
 @app.route('/email/', methods = ['GET', 'POST'])
 @auth.login_required
@@ -531,7 +578,7 @@ def admin_email():
 		subject = request.form['subject']
 		description = request.form['description']
 		reply_to = request.form['reply_to']
-		groups = request.form.getlist('groups')
+		groups = request.form.getlist('groups') 	
 		sending_email= request.form['send_from']
 		sending_password= request.form['password']
 		sending_name= request.form['name']

@@ -1,44 +1,4 @@
 {% include 'admin/header.html' %}
-<script type="text/javascript">
-  var temp;
-  function addEmailGroup(email_id,group_id){
-    var dt=[];
-    dt[0]=parseInt(email_id);
-  
-    dt[1]=parseInt(group_id);
-    $.ajax({
-         type: "POST",
-         async: false,
-         url: "/checkemail/"+email_id+"/"+group_id+"/add",
-         data: {json_str:JSON.stringify(dt)},
-         success: function(msg){
-          console.log('add success:'+msg);
-         },
-         error:function(msg){
-          console.log(msg+"");
-         }
-         // dataType: "json"
-      });
-  }
-  function removeEmailGroup(email_id,group_id){
-    var dt=[];
-    dt[0]=parseInt(email_id);
-    dt[1]=parseInt(group_id);
-    $.ajax({
-         type: "POST",
-         async: false,
-         url: "/checkemail/"+email_id+"/"+group_id+"/remove",
-         data: {json_str:JSON.stringify(dt)},
-         success: function(msg){
-          console.log('remove success:'+msg);
-         },
-         error:function(msg){
-          console.log(msg+"");
-         }
-         // dataType: "json"
-      });
-  }
-</script>
    <!-- MAIN PANEL -->
     <div id="main" role="main">
 
@@ -53,7 +13,7 @@
 
         <!-- breadcrumb -->
         <ol class="breadcrumb">
-          <li>Home</li><li>Import CSV</li>
+          <li>Dashboard</li><li>History</li>
         </ol>
         <!-- end breadcrumb -->
 
@@ -76,7 +36,7 @@
 
         <div class="inbox-nav-bar no-content-padding">
         
-          <h1 class="page-title txt-color-blueDark"><i class="fa fa-fw fa-inbox"></i> Import contact &nbsp;
+          <h1 class="page-title txt-color-blueDark"><i class="fa fa-fw fa-inbox"></i> Senging emails &nbsp;
             <span class="btn-group">
               <a href="#" data-toggle="dropdown" class="btn btn-default btn-xs dropdown-toggle"><span class="caret single"></span></a>
               <ul class="dropdown-menu">
@@ -105,40 +65,35 @@
                 </li>
                 <li>
                   <a href="/email/history">
-                   History
+                  History
                   </a>
                 </li>
               </ul>
             </span>
           </h1>
           <div class="inbox-checkbox-triggered">
-        
-            <div class="btn-group"> 
-            </div>
+          <!--start group action-->
+              &nbsp;&nbsp;
+              <a href="javascript:void(0);" rel="tooltip" title="" data-placement="bottom" data-original-title="Select All" class="btn btn-default" style="padding:3px;width:40px;">
+                 <input name="select_all" type="checkbox" style="width:15px;height:15px;" />
+              </a>
+
+
+              <a href="javascript:void(0);" rel="tooltip" title="" data-placement="bottom" data-original-title="Delete" class="deletebutton btn btn-default" onclick="deleteEmail();" >
+                <strong>
+                  <i class="fa fa-trash-o fa-lg">
+                    
+                  </i>
+                </strong>
+              </a>
+              <!--End group action-->
+            <div class="btn-group">
         
           </div>
-          <div class="btn-group inbox">
-            <form action="/import/" method="POST"  enctype="multipart/form-data">
-            <div class="col-md-5" style="margin-bottom:5px;">
-                <input type="file" name="contact_file" id="contact_file" required />
-              </div>
-              <div class="col-md-5" style="margin-bottom:5px;">
-                <select class="form-control" id="category_id" name="category_id">
-                {%for group in groups%}
-                 <option value="{{group.id}}">{{group.name}}</option>
-                {%endfor%}
-              </select>  
-              </div>
-              <div class="col-md-2">
-                <button class="btn btn-primary" placeholder="Group ..." type="submit">
-                <i class="fa fa-upload"></i> &nbsp;
-                Upload&nbsp;
-                </button>
-              </div>
-            </form>
+          <div class="btn-group inbox-paging">
+           
           </div>
         </div>
-        <div class="hidden-sm hidden-md col-sm-12 clear-fix"></div>
         
         <div id="inbox-content" class="inbox-body no-content-padding">
         
@@ -176,7 +131,7 @@
             <ul class="inbox-menu-lg">
               <li class="active">
                 <a class="inbox-load" href="/email/history">
-              History
+                History
                 </a>
               </li>
             </ul>
@@ -195,16 +150,9 @@
           <!-- <div class="table-wrap custom-scroll animated fast fadeInRight"> -->
             <!-- ajax will fill this area -->
             <!-- LOADING... -->
-            <!--jqgrid table-->
-            <div class="table-wrap custom-scroll animated fast fadeInRight clear-fix">
-          
-             <section id="widget-grid" class="col-sm-12">
 
-                <!-- row -->
-                <div class="row">
-
-                  <!-- NEW WIDGET START -->
-                  <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div style="height: 503px; opacity: 1;" class="table-wrap custom-scroll animated fast fadeInRight">
+              <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                     {% with messages = get_flashed_messages() %}
                       {% if messages %}
                          {% for message in messages %}
@@ -224,13 +172,13 @@
                           {% for page in range(1,pagin+1) %}
                             {% if page == current_pagin %}
                               <li class="active">
-                                <a href="/import/{{page}}">
+                                <a href="/email/history/{{page}}">
                                   {{page}}
                                 </a>
                               </li>
                             {%else%}
                               <li>
-                                <a href="/import/{{page}}">
+                                <a href="/email/history/{{page}}">
                                   {{page}}
                                 </a>
                               </li>
@@ -239,16 +187,16 @@
                       </ul>
                     {%else %}
                       <li class="{%if current_pagin==1 %}active{%endif%}">
-                        <a href="/import/1">1</a>
+                        <a href="/history/1">1</a>
                       </li>
                       <li class="{%if current_pagin==2 %}active{%endif%}">
-                        <a href="/import/2">2</a>
+                        <a href="/email/history/2">2</a>
                       </li>
                       <li class="{%if current_pagin==3 %}active{%endif%}">
-                        <a href="/import/3">3</a>
+                        <a href="/email/history/3">3</a>
                       </li>
                       <li class="{%if current_pagin==4 %}active{%endif%}">
-                        <a href="/import/4">4</a>
+                        <a href="/email/history/4">4</a>
                       </li>
                       <li>
                         <a href="#">...</a>
@@ -256,13 +204,13 @@
                       {% for page in range(pagin-4,pagin+1) %}
                         {% if current_pagin == page%}
                         <li class="active">
-                          <a href="/import/{{page}}">
+                          <a href="/email/history/{{page}}">
                             {{page}}
                           </a>
                           </li>
                        {%else%}
                         <li>
-                          <a href="/import/{{page}}">
+                          <a href="/email/history/{{page}}">
                             {{page}}
                           </a>
                           </li>
@@ -279,170 +227,79 @@
                     <br>
                     <a href="javascript:void(0)" id="m1s"></a>
 
-                  </article>
-                  <!-- WIDGET END -->
-
-                </div>
-
-                <!-- end row -->
-
-              </section>
-              
+              </article>
             </div>
-            <!--End jqgrid table-->
+        
+          <!-- </div> -->
+        
+          <div class="inbox-footer">
+        
+           
+        
+          </div>
+        
+        </div>
+
 
       </div>
       <!-- END MAIN CONTENT -->
-      </div>
+
     </div>
     <!-- END MAIN PANEL -->
-    <script src="/statiac/admin/js/plugin/summernote/summernote.min.js"></script>
+
+      <script src="/statiac/admin/js/plugin/summernote/summernote.min.js"></script>
     <script src="/statiac/adminjs/plugin/delete-table-row/delete-table-row.min.js"></script>
-   <script type="text/javascript">
-     if("{{name}}"!=''){
-        $('input[name="name"]').attr('value',"{{name|safe}}")
-        $('#frm').attr('action','/email/group/{{name}}/edit/');
-      }
-   </script>
+   
 <script type="text/javascript">
       var jqgrid_data =[];
       var temp;
     </script>
-     {% for email in emails %}
+     {% for email in emails_sent %}
      <script type="text/javascript">
       temp=moment().from("{{email.published_at}}");
-      jqgrid_data.push({"firstname":'<a href="#" title="Set Group" data-toggle="modal" data-target="#myModal_{{email.id}}">{{email.firstname}}</a>',"lastname":"{{email.lastname}}","email":"{{email.email}}",'published_at':temp,"action":"<a href='/mail/{{email.id}}/delete' onclick='return confirm(\"Are you sure ?\")' class='btn btn-xs btn-default'><i class='fa fa-trash-o' style='color:red;'></i></a>  <a href='/mail/{{email.id}}/edit' class='btn btn-xs btn-default'><i class='fa fa-pencil'></i></a>"});
+      jqgrid_data.push({'mycheckbox':'<input type="checkbox" name="email" value="{{email.id}}" class="cbox"/>',"email":"{{email.send_to}}","subject":"{{email.subject}}",'send_from':"{{email.sending_email}}",'published_at':temp,"action":"<a href='/email/history/{{email.id}}/delete' onclick='return confirm(\"Are you sure ?\")' class='btn btn-xs btn-default'><i class='fa fa-trash-o' style='color:red;'></i></a>"});
      </script>
-     <!-- pop up modal group email-->
-      <div class="modal" id="myModal_{{email.id}}" role="dialog">
-        <div class="modal-dialog modal-md">
-          <div class="modal-content">
-            <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal"></button>
-              <label><b>{{email.name}} </b> &nbsp; - {{email.email}}</label><br>
-              
-            </div>
-            <div class="modal-body">
-                <form>
 
-                  {%for group in groups%}
-                    <div class="checkbox groups group_{{group.id}}">
-                    <h5>
-                    <label><input type="checkbox" name="groups" id="group_{{group.id}}" value="{{group.id}}" class="group_{{email.id}}">
-                      {{group.name}}
-                    </label>
-                    </h5>
-                  </div>
-                <script type="text/javascript">
-                  //Tick check box
-                  $.ajax({
-                   type: "GET",
-                   async: false,
-                   url: "/checkemail/{{email.id}}/{{group.id}}/check",
-                   success: function(msg){
-                    if(msg.status==true){
-                      $('.group_{{email.id}}[value="{{group.id}}"]').attr("checked", true);
-                    }
-                    },
-                   error:function(msg){
-                    console.log(msg);
-                   }
-               });
-                </script>
-                    {%endfor%}
-
-                    <button class="btn btn-info pull-right btn_{{email.id}}" style="margin-top:-20px;" type="button">Save</button>
-                </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    <!--end pop up modal group email-->
-      <script type="text/javascript">
-        var group_id;
-        $(".btn_{{email.id}}").click(function(){
-          $(".group_{{email.id}}").each(function(){
-            group_id=$(this).val();
-            if($(this).is(':checked'))
-              {
-                //check if not save then save new in emailgroup
-                $.ajax({
-                     type: "GET",
-                     async: false,
-                     url: "/checkemail/{{email.id}}/"+group_id+"/check",
-                     success: function(msg){
-                      console.log('>>>>'+msg.status);
-                      if(msg.status==false){
-                        //not exists then save new
-                        addEmailGroup("{{email.id}}",group_id);
-
-                      }
-                      },
-                     error:function(msg){
-                      console.log(msg);
-                     }
-                 });
-            }
-            else{
-              //check if already save then remove it
-              $.ajax({
-                   type: "GET",
-                   async: false,
-                   url: "/checkemail/{{email.id}}/"+group_id+"/check",
-                   success: function(msg){
-                    console.log(msg.status);
-                    if(msg.status==true){
-                      //not exists then save new
-                      removeEmailGroup("{{email.id}}",group_id);
-
-                    }
-                    },
-                   error:function(msg){
-                    console.log(msg);
-                   }
-                   // dataType: "json"
-                });
-            }
-          });
-          $(".close").click();
-        });
-      </script>
      {%endfor%}
 
     <script type="text/javascript">
       $(document).ready(function() {
         pageSetUp();
-
         jQuery("#jqgrid").jqGrid({
           data : jqgrid_data,
           datatype : "local",
-          colNames : ['First Name','Last Name','Email',"Published", 'Actions'],
+          colNames : ["",'Email','Subject','Send From','Published','Actions'],
           colModel : [{
-            name : 'firstname',
-            index : 'lastname',
-            editable : false
+            name : 'mycheckbox',
+            index : 'mycheckbox',
+            width : 20
           },{
-            name : 'lastname',
-            index : 'lastname',
-            editable : false
-          }, {
             name : 'email',
             index : 'email',
             editable : false
           }, {
+            name : 'subject',
+            index : 'subject',
+            editable : false
+          }, {
+            name : 'send_from',
+            index : 'send_from',
+            editable : false
+          
+          }, {
             name : 'published_at',
             index : 'published_at',
             editable : false,
-            width : 66
+            width : 50,
           }, {
             name : 'action',
             index : 'action',
-            width:50
+            width : 40,
           }],
           rowList: [],        // disable page size dropdown
-            pgbuttons: false,     // disable page control like next, back button
-            pgtext: null,         // disable pager text like 'Page 0 of 10'
-            // viewrecords: false    // disable current view record text like 'View 1-10 of 100'
+          pgbuttons: false,     // disable page control like next, back button
+          pgtext: null,         // disable pager text like 'Page 0 of 10'
+          // viewrecords: false    // disable current view record text like 'View 1-10 of 100'
           viewrecords : true,
           rowNum:10000,
           sortorder : "asc",
@@ -459,7 +316,7 @@
             }
           },
           editurl : "/",
-          caption : "Email Info",
+          caption : "History Info",
           multiselect : false,
           autowidth : true,
           height: 3000,
@@ -522,9 +379,71 @@
       $(window).on('resize.jqGrid', function() {
         // $("#jqgrid").jqGrid('setGridWidth', $("#content").width());
       })
+</script>
 
-      //remove jqgrid height
 
 
-    </script>
+    <script src="/statiac/admin/js/plugin/summernote/summernote.min.js"></script>
+    <script src="/statiac/adminjs/plugin/delete-table-row/delete-table-row.min.js"></script>
+   <script type="text/javascript">
+   pageSetUp();
+     if("{{name}}"!=''){
+        $('input[name="name"]').attr('value',"{{name|safe}}")
+        $('#frm').attr('action','/email/group/{{name}}/edit/');
+      }
+      $('input[name="select_all"]').change(function(){
+        if($(this).is(':checked')){
+          $('input[name="email"]').prop( "checked", true );
+          $("#jqgrid  tr.ui-widget-content").each(function(index,item){
+            arr_selected_email.push($('#jqgrid  tr.ui-widget-content:nth-child('+(index+2)+') td:nth-child(4)').html());
+          // }
+        });
+        }
+        else{
+           $('input[name="email"]').prop( "checked", false );
+           arr_selected_email=[];
+        }
+        console.log(arr_selected_email);  
+      });
+
+    function deleteEmail(){
+      $(".alert").css('display',"none");
+      var help=confirm('Are you sure?');
+      if(help==false)
+        return false;
+      var arr_email_temp=[];
+      $('input[name="email"]').each(function(){
+        if($(this).is(':checked')){
+          arr_email_temp.push($(this).val());
+        }
+      });
+      if(arr_email_temp.length>0){
+          $.ajax({
+            type: "POST",
+            url: '/email/history/0/delete/',
+            data: {'emails':arr_email_temp.join(";")},
+            success: function(response) {
+              console.log(response);
+              if(response.success=='Ok'){
+                // alert('ok');
+                  $(".flash").html('<li>Email deleted successfully.</li>');
+                  $(".flash").addClass('alert alert-success');
+                  $(".flash").css('display',"block");
+              }
+              else{
+                // alert('not ok');
+                  $(".flash").html("<li>Error in deleting emails.</li>");
+                  $(".flash").addClass('alert  alert-danger');
+                  $(".flash").css('display',"block");
+              }
+            }
+          });
+        $('button.close').click();
+        setTimeout(function(){ 
+          location.reload();
+        }, 1000);
+        }
+    }
+   </script>
+
 {% include 'admin/footer.html' %}

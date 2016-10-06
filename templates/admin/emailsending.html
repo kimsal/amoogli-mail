@@ -63,6 +63,11 @@
                     {%endif%}
                   </a>
                 </li>
+                <li>
+                  <a href="/email/history">
+                    History
+                  </a>
+                </li>
               </ul>
             </span>
           </h1>
@@ -123,6 +128,13 @@
                 </a>
               </li>
             </ul>
+             <ul class="inbox-menu-lg">
+              <li class="active">
+                <a class="inbox-load" href="/email/history">
+                  History
+                </a>
+              </li>
+            </ul>
             
         
             <div class="air air-bottom inbox-space">
@@ -160,13 +172,13 @@
                           {% for page in range(1,pagin+1) %}
                             {% if page == current_pagin %}
                               <li class="active">
-                                <a href="/import/{{page}}">
+                                <a href="/email/sending/{{page}}">
                                   {{page}}
                                 </a>
                               </li>
                             {%else%}
                               <li>
-                                <a href="/import/{{page}}">
+                                <a href="/email/sending/{{page}}">
                                   {{page}}
                                 </a>
                               </li>
@@ -175,16 +187,16 @@
                       </ul>
                     {%else %}
                       <li class="{%if current_pagin==1 %}active{%endif%}">
-                        <a href="/import/1">1</a>
+                        <a href="/email/sending/1">1</a>
                       </li>
                       <li class="{%if current_pagin==2 %}active{%endif%}">
-                        <a href="/import/2">2</a>
+                        <a href="/email/sending/2">2</a>
                       </li>
                       <li class="{%if current_pagin==3 %}active{%endif%}">
-                        <a href="/import/3">3</a>
+                        <a href="/email/sending/3">3</a>
                       </li>
                       <li class="{%if current_pagin==4 %}active{%endif%}">
-                        <a href="/import/4">4</a>
+                        <a href="/email/sending/4">4</a>
                       </li>
                       <li>
                         <a href="#">...</a>
@@ -192,13 +204,13 @@
                       {% for page in range(pagin-4,pagin+1) %}
                         {% if current_pagin == page%}
                         <li class="active">
-                          <a href="/import/{{page}}">
+                          <a href="/email/sending/{{page}}">
                             {{page}}
                           </a>
                           </li>
                        {%else%}
                         <li>
-                          <a href="/import/{{page}}">
+                          <a href="/email/sending/{{page}}">
                             {{page}}
                           </a>
                           </li>
@@ -256,12 +268,6 @@
 
       <script src="/statiac/admin/js/plugin/summernote/summernote.min.js"></script>
     <script src="/statiac/adminjs/plugin/delete-table-row/delete-table-row.min.js"></script>
-   <script type="text/javascript">
-     if("{{name}}"!=''){
-        $('input[name="name"]').attr('value',"{{name|safe}}")
-        $('#frm').attr('action','/email/group/{{name}}/edit/');
-      }
-   </script>
 <script type="text/javascript">
       var jqgrid_data =[];
       var temp;
